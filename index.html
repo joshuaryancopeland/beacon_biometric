@@ -897,8 +897,8 @@ updateCarousel(false);
   // Vitals state — bpm drives both ECG speed and displayed HR
   let bpm = 60, tBPM = 60;
   let spo2 = 98, tSpo2 = 98;
-  let sys = 118, tSys = 118;
-  let dia = 74,  tDia = 74;
+  let sys = 118;
+  let dia = 74;
   let rr  = 16,  tRR  = 16;
 
   const ri   = (lo, hi) => Math.floor(Math.random() * (hi - lo + 1)) + lo;
@@ -914,8 +914,8 @@ updateCarousel(false);
   setTimeout(newTargets, ri(4000, 8000));
 
   function newBPTargets() {
-    tSys = ri(110, 130);
-    tDia = ri(68, 82);
+    sys = ri(110, 130);
+    dia = ri(68, 82);
   }
   setInterval(newBPTargets, 60000);
 
@@ -923,8 +923,6 @@ updateCarousel(false);
   setInterval(() => {
     bpm  = cl(lerp(bpm,  tBPM,  0.18), 50, 110);
     spo2 = cl(lerp(spo2, tSpo2, 0.25), 94, 100);
-    sys  = cl(lerp(sys,  tSys,  0.15), 100, 145);
-    dia  = cl(lerp(dia,  tDia,  0.15), 60, 95);
     rr   = cl(lerp(rr,   tRR,   0.15), 10, 24);
 
     const hr  = Math.round(bpm);
