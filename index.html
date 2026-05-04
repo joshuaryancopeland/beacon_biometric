@@ -921,24 +921,10 @@ updateCarousel(false);
     if (bpDiaEl) bpDiaEl.textContent = d;
     if (rrEl)    rrEl.textContent    = rrv;
 
-    const C_OK  = '#16a34a';
-    const C_WARN = '#ea580c';
-    const C_CRIT = '#dc2626';
-
-    const hrColor  = (hr < 50 || hr > 110) ? C_CRIT : (hr < 60 || hr > 100) ? C_WARN : C_OK;
-    const spColor  = sp < 90 ? C_CRIT : sp < 95 ? C_WARN : C_OK;
-    const bpColor  = (s > 140 || s < 90 || d > 90 || d < 60) ? C_CRIT : (s > 130 || s < 100 || d > 85) ? C_WARN : C_OK;
-    const rrColor  = (rrv < 8 || rrv > 25) ? C_CRIT : (rrv < 12 || rrv > 20) ? C_WARN : C_OK;
-
-    if (hrTrEl)  { hrTrEl.textContent  = hr < 60 ? '↓ Bradycardia' : hr > 100 ? '↑ Tachycardia' : '↑ Normal sinus'; hrTrEl.style.color = hrColor; }
-    if (spTrEl)  { spTrEl.textContent  = sp >= 98 ? '→ Stable' : sp >= 95 ? '↓ Adequate' : '↓ Low';                 spTrEl.style.color = spColor; }
-    if (bpTrEl)  { bpTrEl.textContent  = `↓ MAP ${map}`;                                                             bpTrEl.style.color = bpColor; }
-    if (rrTrEl)  { rrTrEl.textContent  = rrv < 12 ? '↓ Bradypnea' : rrv > 20 ? '↑ Tachypnea' : '→ Normal';         rrTrEl.style.color = rrColor; }
-
-    if (hrEl)    hrEl.style.color    = hrColor;
-    if (spo2El)  spo2El.style.color  = spColor;
-    if (bpSysEl) { bpSysEl.style.color = bpColor; bpDiaEl.style.color = bpColor; }
-    if (rrEl)    rrEl.style.color    = rrColor;
+    if (hrTrEl)  hrTrEl.textContent  = hr < 60 ? '↓ Bradycardia' : hr > 100 ? '↑ Tachycardia' : '↑ Normal sinus';
+    if (spTrEl)  spTrEl.textContent  = sp >= 98 ? '→ Stable' : sp >= 95 ? '↓ Adequate' : '↓ Low';
+    if (bpTrEl)  bpTrEl.textContent  = `↓ MAP ${map}`;
+    if (rrTrEl)  rrTrEl.textContent  = rrv < 12 ? '↓ Bradypnea' : rrv > 20 ? '↑ Tachypnea' : '→ Normal';
   }, 1000);
 
   // ECG — speed driven by same bpm variable as display
