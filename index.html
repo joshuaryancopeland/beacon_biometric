@@ -220,7 +220,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 
 .carousel-label{
   font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(11,37,69,.45);margin-bottom:12px;margin-top:10px;
+  color:rgba(11,37,69,.45);margin-bottom:12px;margin-top:20px;
 }
 
 .carousel-stage{
@@ -465,7 +465,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
   .brand-block svg{margin-bottom:10px}
   .brand-title{font-size:clamp(1.5rem,8vw,2.2rem)}
   .brand-sub{letter-spacing:.14em;font-size:.68rem}
-  .brand-expansion{font-size:.66rem;text-align:center}
+  .brand-expansion{font-size:min(.52rem,2.1vw);text-align:center;white-space:nowrap;letter-spacing:0}
   .brand-tag{text-align:center;font-size:.88rem;max-width:320px}
   .brand-acronym{justify-content:center}
 
@@ -484,8 +484,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
   .carousel-stage{height:min(36vw,156px);margin-top:8px}
   .slide{width:min(60vw,247px);height:min(34vw,138px);border-radius:14px}
   .carousel-arrow{width:34px;height:34px;font-size:.85rem}
-  .carousel-arrow.prev{left:6px}
-  .carousel-arrow.next{right:6px}
+  .carousel-arrow.prev{left:16px}
+  .carousel-arrow.next{right:16px}
   .carousel-dots{gap:5px;margin-top:10px}
   .dot{width:6px;height:6px}
   .dot.active{width:16px}
@@ -750,6 +750,26 @@ document.getElementById('btn-next').addEventListener('click', () => goTo(current
 
 dotEls.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
 
+// ─── Swipe support ────────────────────────────────────────────
+(function() {
+  const stage = document.getElementById('stage');
+  let startX = 0, startY = 0, dragging = false;
+  stage.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dragging = true;
+  }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      dx < 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  }, { passive: true });
+})();
+
 // ─── Keyboard nav ─────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (lightbox.classList.contains('open')) {
@@ -954,6 +974,23 @@ updateCarousel(false);
     }
 
     ctx.clearRect(0, 0, W, H);
+
+    // ECG grid — small boxes every 40ms, large every 200ms
+    const smallBox = BEAT_PX / 25;
+    const largeBox = BEAT_PX / 5;
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = 'rgba(37,99,235,0.10)';
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += smallBox) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+    for (let y = 0; y <= H; y += H / 10)   { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
+    ctx.lineWidth = 0.75;
+    ctx.strokeStyle = 'rgba(37,99,235,0.20)';
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += largeBox) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+    for (let y = 0; y <= H; y += H / 2)    { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
+
     ctx.lineWidth   = 3.5;
     ctx.strokeStyle = 'rgba(37,99,235,0.18)';
     ctx.stroke(p);
