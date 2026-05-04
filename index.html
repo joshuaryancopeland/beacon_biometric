@@ -111,8 +111,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 }
 .nav-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
 .nav-logo-text{display:flex;flex-direction:column;gap:1px}
-.nav-logo-name{font-size:.98rem;font-weight:800;letter-spacing:.12em;line-height:1;background:linear-gradient(120deg,#0B2545 0%,#2563EB 50%,#60A5FA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-logo-name span{color:unset}
+.nav-logo-name{font-size:.98rem;font-weight:800;letter-spacing:.12em;color:var(--navy);line-height:1}
+.nav-logo-name span{color:var(--blue)}
+.grad-text{background:linear-gradient(120deg,#1B3A6B 0%,#2563EB 50%,#60A5FA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-links{display:flex;gap:24px;list-style:none;position:relative;z-index:1}
 .nav-links a{color:rgba(11,37,69,.65);text-decoration:none;font-size:.8rem;font-weight:500;transition:color .2s;white-space:nowrap}
 .nav-links a:hover{color:var(--navy)}
@@ -151,8 +152,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
   padding:24px 80px 0;
 }
 .brand-block{flex-shrink:0;width:400px}
-.brand-title{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:.08em;line-height:1;background:linear-gradient(120deg,#0B2545 0%,#2563EB 50%,#60A5FA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.brand-title span{color:unset}
+.brand-title{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:.08em;color:var(--navy);line-height:1}
+.brand-title span{color:var(--blue)}
 .brand-sub{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-top:4px;white-space:normal}
 .brand-expansion{font-size:.7rem;color:rgba(11,37,69,.45);margin-top:5px;line-height:1.4;white-space:normal}
 .brand-expansion b{color:rgba(11,37,69,.85);font-weight:800;font-size:.75rem}
@@ -550,7 +551,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
       <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
     </svg>
     <div class="nav-logo-text">
-      <div class="nav-logo-name"><span>B.E.A.C.O.N.</span> BIOMETRIC</div>
+      <div class="nav-logo-name"><span>B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
     </div>
   </div>
   <ul class="nav-links">
@@ -576,7 +577,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
         <line x1="95" y1="38" x2="126" y2="38" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
         <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
       </svg>
-      <div class="brand-title"><span>B.E.A.C.O.N.</span> BIOMETRIC</div>
+      <div class="brand-title"><span>B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
       <div class="brand-sub">Augmented Reality · Clinical Intelligence</div>
       <div class="brand-expansion"><b>B</b>iometric <b>E</b>cosystem <b>A</b>ugmented for <b>C</b>linical <b>O</b>ptimization and <b>N</b>avigation</div>
       <div class="brand-tag">Live patient data that stays with the clinician —<br><strong>at the moment care happens.</strong></div>
