@@ -114,6 +114,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 .nav-logo-name{font-size:.98rem;font-weight:800;letter-spacing:.12em;color:var(--navy);line-height:1}
 .nav-logo-name span{color:var(--blue)}
 .grad-text{background:linear-gradient(120deg,#1B3A6B 0%,#2563EB 50%,#60A5FA 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ── LOGO ANIMATIONS ── */
+@keyframes logo-ping{
+  0%  {transform:scale(1);stroke-opacity:.8}
+  100%{transform:scale(2.6);stroke-opacity:0}
+}
+@keyframes logo-lens{
+  0%,100%{stroke-opacity:.45;fill:transparent}
+  50%    {stroke-opacity:1;fill:rgba(37,99,235,.08)}
+}
+@keyframes logo-line{
+  0%,100%{stroke-opacity:.3}
+  50%    {stroke-opacity:1}
+}
+@keyframes logo-screen{
+  0%,100%{stroke-opacity:.5}
+  50%    {stroke-opacity:.9}
+}
+.logo-ping{transform-origin:65px 48px;animation:logo-ping 2.8s ease-out infinite}
+.logo-ping2{transform-origin:65px 48px;animation:logo-ping 2.8s ease-out infinite 1.4s}
+.logo-lens{animation:logo-lens 2.8s ease-in-out infinite}
+.logo-line1{animation:logo-line 2.8s ease-in-out infinite .3s}
+.logo-line2{animation:logo-line 2.8s ease-in-out infinite .7s}
+.logo-screen{animation:logo-screen 2.8s ease-in-out infinite}
 .nav-links{display:flex;gap:24px;list-style:none;position:relative;z-index:1}
 .nav-links a{color:rgba(11,37,69,.65);text-decoration:none;font-size:.8rem;font-weight:500;transition:color .2s;white-space:nowrap}
 .nav-links a:hover{color:var(--navy)}
@@ -542,13 +566,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 <!-- NAV -->
 <nav id="nav" class="glass">
   <div class="nav-logo">
-    <svg width="32" height="20" viewBox="0 0 160 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0">
+    <svg width="32" height="20" viewBox="0 0 160 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0;overflow:visible">
       <rect x="3" y="3" width="154" height="90" rx="22" stroke="#1B4060" stroke-width="5" fill="rgba(220,235,250,0.35)"/>
-      <rect x="20" y="17" width="120" height="62" rx="13" stroke="#4B96CC" stroke-width="4" fill="none"/>
+      <rect x="20" y="17" width="120" height="62" rx="13" stroke="#4B96CC" stroke-width="4" fill="none" class="logo-screen"/>
+      <circle cx="65" cy="48" r="17" stroke="#4B96CC" stroke-width="3.5" fill="none" class="logo-ping"/>
+      <circle cx="65" cy="48" r="17" stroke="#4B96CC" stroke-width="3.5" fill="none" class="logo-ping2"/>
       <circle cx="65" cy="48" r="17" stroke="#4B96CC" stroke-width="3.5" fill="none"/>
-      <circle cx="65" cy="48" r="7.5" stroke="#4B96CC" stroke-width="3" fill="none"/>
-      <line x1="95" y1="38" x2="126" y2="38" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
-      <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="65" cy="48" r="7.5" stroke="#4B96CC" stroke-width="3" fill="none" class="logo-lens"/>
+      <line x1="95" y1="38" x2="126" y2="38" stroke="#4B96CC" stroke-width="4" stroke-linecap="round" class="logo-line1"/>
+      <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round" class="logo-line2"/>
     </svg>
     <div class="nav-logo-text">
       <div class="nav-logo-name"><span>B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
@@ -569,13 +595,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
   <!-- TOP: brand + vitals display -->
   <div id="top">
     <div class="brand-block">
-      <svg width="72" height="44" viewBox="0 0 160 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:14px">
+      <svg width="72" height="44" viewBox="0 0 160 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:14px;overflow:visible">
         <rect x="3" y="3" width="154" height="90" rx="22" stroke="#1B4060" stroke-width="5" fill="rgba(220,235,250,0.35)"/>
-        <rect x="20" y="17" width="120" height="62" rx="13" stroke="#4B96CC" stroke-width="4" fill="none"/>
+        <rect x="20" y="17" width="120" height="62" rx="13" stroke="#4B96CC" stroke-width="4" fill="none" class="logo-screen"/>
+        <circle cx="65" cy="48" r="17" stroke="#4B96CC" stroke-width="3.5" fill="none" class="logo-ping"/>
+        <circle cx="65" cy="48" r="17" stroke="#4B96CC" stroke-width="3.5" fill="none" class="logo-ping2"/>
         <circle cx="65" cy="48" r="17" stroke="#4B96CC" stroke-width="3.5" fill="none"/>
-        <circle cx="65" cy="48" r="7.5" stroke="#4B96CC" stroke-width="3" fill="none"/>
-        <line x1="95" y1="38" x2="126" y2="38" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
-        <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="65" cy="48" r="7.5" stroke="#4B96CC" stroke-width="3" fill="none" class="logo-lens"/>
+        <line x1="95" y1="38" x2="126" y2="38" stroke="#4B96CC" stroke-width="4" stroke-linecap="round" class="logo-line1"/>
+        <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round" class="logo-line2"/>
       </svg>
       <div class="brand-title"><span>B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
       <div class="brand-sub">Augmented Reality · Clinical Intelligence</div>
