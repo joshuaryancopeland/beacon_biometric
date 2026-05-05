@@ -938,10 +938,12 @@ updateCarousel(false);
     if (bpDiaEl) bpDiaEl.textContent = d;
     if (rrEl)    rrEl.textContent    = rrv;
 
-    if (hrTrEl)  hrTrEl.textContent  = hr < 60 ? '↓ Bradycardia' : hr > 100 ? '↑ Tachycardia' : '↑ Normal sinus';
-    if (spTrEl)  spTrEl.textContent  = sp >= 98 ? '→ Stable' : sp >= 95 ? '↓ Adequate' : '↓ Low';
-    if (bpTrEl)  bpTrEl.textContent  = `↓ MAP ${map}`;
-    if (rrTrEl)  rrTrEl.textContent  = rrv < 12 ? '↓ Bradypnea' : rrv > 20 ? '↑ Tachypnea' : '→ Normal';
+    const OK = '#16a34a', WARN = '#ea580c';
+
+    if (hrTrEl)  { hrTrEl.textContent = hr < 60 ? '↓ Bradycardia' : hr > 100 ? '↑ Tachycardia' : '↑ Normal sinus'; hrTrEl.style.color = hr < 60 ? WARN : OK; }
+    if (spTrEl)  { spTrEl.textContent = sp >= 98 ? '→ Stable' : sp >= 95 ? '↓ Adequate' : '↓ Low';                 spTrEl.style.color = sp < 90 ? WARN : OK; }
+    if (bpTrEl)  { bpTrEl.textContent = `↓ MAP ${map}`;                                                             bpTrEl.style.color = map < 65 ? WARN : OK; }
+    if (rrTrEl)  { rrTrEl.textContent = rrv < 12 ? '↓ Bradypnea' : rrv > 20 ? '↑ Tachypnea' : '→ Normal';         rrTrEl.style.color = rrv < 10 ? WARN : OK; }
   }, 1000);
 
   // ECG — speed driven by same bpm variable as display
