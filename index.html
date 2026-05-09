@@ -112,7 +112,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 .nav-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
 .nav-logo-text{display:flex;flex-direction:column;gap:1px}
 .nav-logo-name{font-size:.98rem;font-weight:800;letter-spacing:.12em;color:var(--navy);line-height:1}
-.nav-logo-name span:first-child{background:linear-gradient(90deg,#0B2545 0%,#1e3a6e 12%,#2563EB 26%,#60A5FA 38%,#bfdbfe 46%,#e0f2fe 50%,#bfdbfe 54%,#60A5FA 62%,#2563EB 76%,#1B3A6B 88%,#0B2545 100%);background-size:250% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:beacon-shader 4s linear infinite}
+.nav-logo-name span:first-child{-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-image:linear-gradient(90deg,#0B2545,#2563EB)}
 .grad-text{color:var(--navy)}
 .nav-links{display:flex;gap:24px;list-style:none;position:relative;z-index:1}
 .nav-links a{color:rgba(11,37,69,.65);text-decoration:none;font-size:.8rem;font-weight:500;transition:color .2s;white-space:nowrap}
@@ -153,8 +153,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
 }
 .brand-block{flex-shrink:0;width:400px}
 .brand-title{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:.08em;color:var(--navy);line-height:1}
-.brand-title span:first-child{background:linear-gradient(90deg,#0B2545 0%,#1e3a6e 12%,#2563EB 26%,#60A5FA 38%,#bfdbfe 46%,#e0f2fe 50%,#bfdbfe 54%,#60A5FA 62%,#2563EB 76%,#1B3A6B 88%,#0B2545 100%);background-size:250% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:beacon-shader 4s linear infinite}
-@keyframes beacon-shader{0%{background-position:150% center}100%{background-position:-50% center}}
+.brand-title span:first-child{-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-image:linear-gradient(90deg,#0B2545,#2563EB)}
 .brand-sub{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-top:4px;white-space:normal}
 .brand-expansion{font-size:.7rem;color:rgba(11,37,69,.45);margin-top:5px;line-height:1.4;white-space:normal}
 .brand-expansion b{color:rgba(11,37,69,.85);font-weight:800;font-size:.75rem}
@@ -552,7 +551,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
       <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
     </svg>
     <div class="nav-logo-text">
-      <div class="nav-logo-name"><span>B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
+      <div class="nav-logo-name"><span class="beacon-shader-el">B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
     </div>
   </div>
   <ul class="nav-links">
@@ -578,7 +577,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-u
         <line x1="95" y1="38" x2="126" y2="38" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
         <line x1="95" y1="52" x2="120" y2="52" stroke="#4B96CC" stroke-width="4" stroke-linecap="round"/>
       </svg>
-      <div class="brand-title"><span>B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
+      <div class="brand-title"><span class="beacon-shader-el">B.E.A.C.O.N.</span> <span class="grad-text">BIOMETRIC</span></div>
       <div class="brand-sub">Augmented Reality · Clinical Intelligence</div>
       <div class="brand-expansion"><b>B</b>iometric <b>E</b>cosystem <b>A</b>ugmented for <b>C</b>linical <b>O</b>ptimization and <b>N</b>avigation</div>
       <div class="brand-tag">Live patient data that stays with the clinician —<br><strong>at the moment care happens.</strong></div>
@@ -1002,6 +1001,35 @@ updateCarousel(false);
   }
 
   requestAnimationFrame(frame);
+})();
+
+// ── BEACON LIQUID SHADER ──
+(function() {
+  const els = document.querySelectorAll('.beacon-shader-el');
+  if (!els.length) return;
+  let t = 0;
+  // Six blobs with independent frequencies/phases for organic, non-repeating motion
+  const blobs = [
+    { fr:1.00, fp:0.00, fa:0.73, rf:0.85, rp:0.40, ra:0.6, r:'59,130,246',  op:0.90, sz:'220% 200%' },
+    { fr:0.71, fp:2.10, fa:0.62, rf:1.10, rp:1.00, ra:0.5, r:'96,165,250',  op:0.80, sz:'200% 180%' },
+    { fr:1.30, fp:4.20, fa:0.55, rf:0.60, rp:3.10, ra:0.4, r:'147,197,253', op:0.70, sz:'180% 160%' },
+    { fr:0.55, fp:1.40, fa:0.80, rf:0.90, rp:2.50, ra:0.7, r:'11,37,69',    op:0.85, sz:'240% 200%' },
+    { fr:1.15, fp:3.30, fa:0.48, rf:1.25, rp:0.80, ra:0.3, r:'37,99,235',   op:0.75, sz:'190% 170%' },
+    { fr:0.82, fp:5.10, fa:0.65, rf:0.70, rp:1.90, ra:0.5, r:'30,58,138',   op:0.65, sz:'160% 220%' },
+  ];
+
+  function frame() {
+    t += 0.007;
+    const parts = blobs.map(b => {
+      const x = 50 + 48 * Math.sin(t * b.fr + b.fp) * b.fa;
+      const y = 50 + 48 * Math.cos(t * b.rf + b.rp) * b.ra;
+      return `radial-gradient(ellipse ${b.sz} at ${x.toFixed(1)}% ${y.toFixed(1)}%, rgba(${b.r},${b.op}), transparent 60%)`;
+    });
+    const grad = parts.join(',');
+    els.forEach(el => { el.style.backgroundImage = grad; });
+    requestAnimationFrame(frame);
+  }
+  frame();
 })();
 </script>
 </body>
