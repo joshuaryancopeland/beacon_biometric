@@ -1003,32 +1003,98 @@ updateCarousel(false);
   requestAnimationFrame(frame);
 })();
 
-// ── BEACON LIQUID SHADER ──
+// ── BEACON WATER CAUSTIC SHADER ──
 (function() {
   const els = document.querySelectorAll('.beacon-shader-el');
   if (!els.length) return;
+
+  const W = 480, H = 88;
+  const cvs = document.createElement('canvas');
+  cvs.width = W; cvs.height = H;
+  const ctx2d = cvs.getContext('2d');
+  const img = ctx2d.createImageData(W, H);
+  const px = img.data;
+
   let t = 0;
-  // Six blobs with independent frequencies/phases for organic, non-repeating motion
-  const blobs = [
-    { fr:1.00, fp:0.00, fa:0.73, rf:0.85, rp:0.40, ra:0.6, r:'59,130,246',  op:0.90, sz:'220% 200%' },
-    { fr:0.71, fp:2.10, fa:0.62, rf:1.10, rp:1.00, ra:0.5, r:'96,165,250',  op:0.80, sz:'200% 180%' },
-    { fr:1.30, fp:4.20, fa:0.55, rf:0.60, rp:3.10, ra:0.4, r:'147,197,253', op:0.70, sz:'180% 160%' },
-    { fr:0.55, fp:1.40, fa:0.80, rf:0.90, rp:2.50, ra:0.7, r:'11,37,69',    op:0.85, sz:'240% 200%' },
-    { fr:1.15, fp:3.30, fa:0.48, rf:1.25, rp:0.80, ra:0.3, r:'37,99,235',   op:0.75, sz:'190% 170%' },
-    { fr:0.82, fp:5.10, fa:0.65, rf:0.70, rp:1.90, ra:0.5, r:'30,58,138',   op:0.65, sz:'160% 220%' },
-  ];
 
   function frame() {
-    t += 0.007;
-    const parts = blobs.map(b => {
-      const x = 50 + 48 * Math.sin(t * b.fr + b.fp) * b.fa;
-      const y = 50 + 48 * Math.cos(t * b.rf + b.rp) * b.ra;
-      return `radial-gradient(ellipse ${b.sz} at ${x.toFixed(1)}% ${y.toFixed(1)}%, rgba(${b.r},${b.op}), transparent 60%)`;
+    t += 0.020;
+
+    for (let y = 0; y < H; y++) {
+      const ny = y / H;
+      for (let x = 0; x < W; x++) {
+        const nx = x / W;
+
+        // Six interference waves — different frequencies, speeds, and angles
+        const w1 = Math.sin(nx * 13.0 - t * 3.8 + ny * 4.5);
+        const w2 = Math.sin(nx *  8.0 + t * 2.5 + ny * 7.2 + 1.4);
+        const w3 = Math.sin(nx * 19.0 - t * 5.6 + ny * 2.8 + 2.9);
+        const w4 = Math.cos(nx *  5.5 - t * 2.1 + ny * 11.0 + 0.7);
+        const w5 = Math.cos(nx * 15.0 + t * 4.3 - ny * 3.8 + 3.5);
+        const w6 = Math.sin(nx * 10.0 - t * 3.0 + ny * 6.0 + 5.2);
+
+        // Caustic: normalize to 0-1 and sharpen peaks
+        const raw = (w1 + w2 + w3 + w4 + w5 + w6) / 6;
+        const caustic = Math.pow(Math.max(0, raw * 0.5 + 0.5), 2.6);
+
+        // Horizontal current — streaks of light rushing left to right
+        const flow = Math.pow(Math.max(0,
+          Math.sin((nx - t * 2.2) * 3.5 + ny * 1.8) * 0.5 + 0.5
+        ), 7) * 0.40;
+
+        // Vertical surface shimmer
+        const ripple = Math.pow(Math.max(0,
+          Math.sin(ny * 7.0 + t * 2.8 + nx * 3.0) * 0.5 + 0.5
+        ), 5) * 0.18;
+
+        // Sharp glints — sudden bright flashes like sunlight on water surface
+        const glint = Math.pow(Math.max(0,
+          Math.sin(t * 4.1 + nx * 6.3 + ny * 2.9)
+        ), 14) * 0.55;
+
+        const v = Math.min(1.0, caustic + flow + ripple + glint);
+
+        // Color ramp: deep navy → ink blue → electric blue → bright aqua → near-white
+        let r, g, b;
+        if (v < 0.25) {
+          const s = v / 0.25;
+          r = Math.round(11 + 16  * s);
+          g = Math.round(37 + 21  * s);
+          b = Math.round(69 + 69  * s);
+        } else if (v < 0.55) {
+          const s = (v - 0.25) / 0.30;
+          r = Math.round(27 + 10  * s);
+          g = Math.round(58 + 41  * s);
+          b = Math.round(138 + 97 * s);
+        } else if (v < 0.80) {
+          const s = (v - 0.55) / 0.25;
+          r = Math.round(37 + 149 * s);
+          g = Math.round(99 + 131 * s);
+          b = Math.round(235 + 18 * s);
+        } else {
+          const s = (v - 0.80) / 0.20;
+          r = Math.round(186 + 69 * s);
+          g = Math.round(230 + 25 * s);
+          b = Math.min(255, Math.round(253));
+        }
+
+        const i = (y * W + x) * 4;
+        px[i]   = r;
+        px[i+1] = g;
+        px[i+2] = b;
+        px[i+3] = 255;
+      }
+    }
+
+    ctx2d.putImageData(img, 0, 0);
+    const url = cvs.toDataURL('image/jpeg', 0.90);
+    els.forEach(el => {
+      el.style.backgroundImage = `url('${url}')`;
+      el.style.backgroundSize  = '100% 100%';
     });
-    const grad = parts.join(',');
-    els.forEach(el => { el.style.backgroundImage = grad; });
     requestAnimationFrame(frame);
   }
+
   frame();
 })();
 </script>
