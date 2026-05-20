@@ -875,16 +875,39 @@ updateCarousel(false);
   const mid = H * 0.54;
   const amp = H * 0.46;
 
-  const G = (t, mu, sig, h) => h * Math.exp(-0.5 * ((t - mu) / sig) ** 2);
-  function ecgAt(t) {
-    t = ((t % 1) + 1) % 1;
-    return (
-      G(t, 0.160, 0.030,  0.16) +
-      G(t, 0.383, 0.007, -0.09) +
-      G(t, 0.415, 0.011,  1.00) +
-      G(t, 0.447, 0.009, -0.34) +
-      G(t, 0.630, 0.048,  0.36)
-    );
+  function tri(t, t0, dur, a) {
+    if (dur <= 0 || t < t0 || t > t0 + dur) return 0;
+    const h = dur * 0.5;
+    return (-Math.abs(t - (t0 + h)) + h) * (a / h);
+  }
+  function para(t, t0, dur, a) {
+    if (dur <= 0 || t < t0 || t > t0 + dur) return 0;
+    const h = dur * 0.5;
+    const alpha = t0 + h;
+    return (-Math.pow(t - alpha, 2) + h * h) * (a / (h * h));
+  }
+  function ecgAt(normT) {
+    const T   = 60 / bpm;
+    const sqT = Math.sqrt(T);
+    const pd  = Math.max(0.01, 0.37*sqT - 0.22*T - 0.06);
+    const pq  = Math.max(0.01, 0.33*sqT - 0.18*T - 0.08);
+    const qrs = Math.max(0.01, 0.25*sqT - 0.16*T - 0.02);
+    const q   = qrs * 0.23;
+    const r   = qrs * 0.42;
+    const s   = qrs * 0.35;
+    const st  = Math.max(0.01, -0.09*sqT + 0.13*T + 0.04);
+    const td  = Math.max(0.01,  1.06*sqT - 0.51*T - 0.33);
+    const t   = ((normT % 1) + 1) % 1 * T;
+    const qS  = pd + pq;
+    const rS  = qS + q;
+    const sS  = rS + r;
+    const tS  = qS + qrs + st;
+    let v = para(t, 0, pd, 0.24);
+    v -= tri(t, qS, q, 0.025);
+    v += tri(t, rS, r, 1.0);
+    v -= tri(t, sS, s, 0.25);
+    v += para(t, tS, td, 0.35);
+    return v;
   }
 
   // DOM refs
