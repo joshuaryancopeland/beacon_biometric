@@ -11,6 +11,7 @@
 <meta property="og:type" content="website"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://www.beaconbiometric.com/og-preview.png"/>
+<link rel="canonical" href="https://www.beaconbiometric.com/"/>
 <link rel="icon" type="image/x-icon" href="favicon.ico"/>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
@@ -887,7 +888,7 @@ updateCarousel(false);
     return (-Math.pow(t - alpha, 2) + h * h) * (a / (h * h));
   }
   function ecgAt(normT) {
-    const T   = 60 / bpm;
+    const T   = 60 / beatBPM;
     const sqT = Math.sqrt(T);
     const pd  = Math.max(0.01, 0.37*sqT - 0.22*T - 0.06);
     const pq  = Math.max(0.01, 0.33*sqT - 0.18*T - 0.08);
@@ -977,6 +978,7 @@ updateCarousel(false);
   const BEAT_PX = W * 0.44;
   const buf = new Float32Array(W).fill(0);
   let head = 0, beatT = 0, prev = null;
+  let beatBPM = 60, beatAmpScale = 1.0;
 
   function frame(now) {
     if (!prev) prev = now;
@@ -987,7 +989,12 @@ updateCarousel(false);
     const pxCount = Math.round(pxPerMs * dt);
     const tStep   = 1 / BEAT_PX;
     for (let i = 0; i < pxCount; i++) {
-      buf[head] = ecgAt(beatT) * amp;
+      if (beatT < tStep) {
+        beatBPM      = cl(bpm + (Math.random() - 0.5) * 5, 40, 160);
+        beatAmpScale = 0.92 + Math.random() * 0.16;
+      }
+      const wander = 0.025 * Math.sin(2 * Math.PI * now / 4400);
+      buf[head] = ecgAt(beatT) * amp * beatAmpScale + wander * amp;
       beatT = (beatT + tStep) % 1;
       head  = (head + 1) % W;
     }
