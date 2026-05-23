@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=600, height=600, initial-scale=1.0">
+<title>B.E.A.C.O.N. Vitals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --white:  #E8F4FF;
+    --blue:   #60A5FA;
+    --muted:  #94A3B8;
+    --green:  #22C55E;
+    --amber:  #FB923C;
+    --red:    #F87171;
+  }
+
+  html, body {
+    width: 600px;
+    height: 600px;
+    overflow: hidden;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--white);
+    background: #000000; /* transparent on additive display */
+  }
+
+  #panel {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    padding: 22px 24px 20px;
+    background: rgba(0,0,0,0.76);
+    border: 1px solid rgba(96,165,250,0.22);
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  /* corner brackets */
+  .corner { position: absolute; width: 18px; height: 18px; border-color: rgba(96,165,250,0.55); border-style: solid; }
+  .corner.tl { top:10px; left:10px;   border-width: 2px 0 0 2px; }
+  .corner.tr { top:10px; right:10px;  border-width: 2px 2px 0 0; }
+  .corner.bl { bottom:10px; left:10px;  border-width: 0 0 2px 2px; }
+  .corner.br { bottom:10px; right:10px; border-width: 0 2px 2px 0; }
+
+  /* header */
+  #live-row { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .pulse-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green), 0 0 18px rgba(34,197,94,0.55);
+    flex-shrink: 0;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:0.45; transform:scale(0.82); }
+  }
+  .live-label { font-size: 0.62rem; letter-spacing: 0.18em; color: var(--green); font-weight: 700; text-transform: uppercase; }
+
+  /* vitals grid */
+  #vitals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+  }
+  .v-card {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(96,165,250,0.18);
+    border-radius: 12px;
+    padding: 14px 16px 12px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .v-label { font-size: 0.62rem; letter-spacing: 0.10em; color: var(--blue); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+  .v-val-row { display: flex; align-items: baseline; gap: 4px; line-height: 1; }
+  .v-val { font-family: 'DM Mono', monospace; font-size: 3rem; font-weight: 400; color: var(--white); line-height: 1; letter-spacing: -0.02em; }
+  .v-unit { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+  .v-trend { font-size: 0.78rem; margin-top: 7px; font-weight: 600; }
+
+  /* ECG */
+  #ecg-wrap {
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(96,165,250,0.18);
+    line-height: 0;
+  }
+  #ecg-canvas { display: block; }
+</style>
+</head>
+<body>
+
+<div id="panel">
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
+
+  <div id="live-row">
+    <div class="pulse-dot"></div>
+    <span class="live-label">Live &middot; AR Overlay Active</span>
+  </div>
+
+  <div id="vitals-grid">
+    <div class="v-card">
+      <div class="v-label">Heart Rate</div>
+      <div class="v-val-row"><span class="v-val" id="val-hr">69</span><span class="v-unit">bpm</span></div>
+      <div class="v-trend" id="trend-hr"></div>
+    </div>
+    <div class="v-card">
+      <div class="v-label">SpO₂</div>
+      <div class="v-val-row"><span class="v-val" id="val-spo2">98</span><span class="v-unit">%</span></div>
+      <div class="v-trend" id="trend-spo2"></div>
+    </div>
+    <div class="v-card">
+      <div class="v-label">Blood Pressure</div>
+      <div class="v-val-row"><span class="v-val" id="val-bp">115</span><span class="v-unit" id="unit-bp">/78</span></div>
+      <div class="v-trend" id="trend-bp"></div>
+    </div>
+    <div class="v-card">
+      <div class="v-label">Resp Rate</div>
+      <div class="v-val-row"><span class="v-val" id="val-rr">14</span><span class="v-unit">/min</span></div>
+      <div class="v-trend" id="trend-rr"></div>
+    </div>
+  </div>
+
+  <div id="ecg-wrap">
+    <canvas id="ecg-canvas"></canvas>
+  </div>
+</div>
+
+<script>
+// ── VITALS SIMULATION ────────────────────────────────────────────────────────
+const INIT = { hr:69, spo2:98, sys:115, dia:78, rr:14 };
+
+let vitals  = { ...INIT };
+let targets = { hr:72, spo2:96, sys:118, dia:76, rr:16 };
+let bpm = INIT.hr;
+
+const ri   = (lo,hi) => Math.floor(Math.random()*(hi-lo+1))+lo;
+const rif  = (lo,hi) => Math.random()*(hi-lo)+lo;
+const lerp = (a,b,t) => a+(b-a)*t;
+const cl   = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+
+(function hrTimer() {
+  targets.hr = cl(targets.hr + ri(-4, 4), 58, 82);
+  setTimeout(hrTimer, ri(10000, 18000));
+})();
+
+(function spo2Timer() { targets.spo2 = ri(94,100); setTimeout(spo2Timer, ri(8000,14000)); })();
+(function rrTimer()   { targets.rr   = ri(12,20);  setTimeout(rrTimer,   ri(8000,14000)); })();
+
+setInterval(() => {
+  targets.sys = cl(INIT.sys + ri(-14,14), 80,170);
+  targets.dia = cl(INIT.dia + ri(-9,9),   50,105);
+}, 60000);
+
+setInterval(() => {
+  vitals.hr   = Math.round(cl(lerp(vitals.hr,   targets.hr,   0.10) + rif(-0.9, 0.9), 40, 180));
+  vitals.spo2 = Math.round(cl(lerp(vitals.spo2, targets.spo2, 0.12) + rif(-0.3, 0.3), 85, 100));
+  vitals.sys  = Math.round(cl(lerp(vitals.sys,  targets.sys,  0.06), 80, 180));
+  vitals.dia  = Math.round(cl(lerp(vitals.dia,  targets.dia,  0.06), 50, 110));
+  vitals.rr   = Math.round(cl(lerp(vitals.rr,   targets.rr,   0.12) + rif(-0.3, 0.3), 8, 30));
+  bpm = vitals.hr;
+  renderUI();
+}, 800);
+
+// ── TRENDS ──────────────────────────────────────────────────────────────────
+const OK='#22C55E', WARN='#FB923C', CRIT='#F87171';
+function trend(key,v) {
+  if (key==='hr')   { if(v.hr<50) return[`↓ Severe bradycardia`,CRIT]; if(v.hr<60) return[`↓ Bradycardia`,WARN]; if(v.hr>130) return[`↑ Severe tachycardia`,CRIT]; if(v.hr>100) return[`↑ Tachycardia`,WARN]; return[`↑ Normal sinus`,OK]; }
+  if (key==='spo2') { if(v.spo2>=95) return[`→ Stable`,OK]; if(v.spo2>=90) return[`↓ Low — monitor`,WARN]; return[`↓ Critical hypoxia`,CRIT]; }
+  if (key==='bp')   { const m=Math.round((v.sys+2*v.dia)/3); if(m<65) return[`↓ MAP ${m} — shock`,CRIT]; if(v.sys>180) return[`↑ Hypertensive crisis`,CRIT]; if(v.sys>140) return[`↑ Elevated · MAP ${m}`,WARN]; return[`↓ MAP ${m}`,OK]; }
+  if (key==='rr')   { if(v.rr<10) return[`↓ Bradypnea`,WARN]; if(v.rr>24) return[`↑ Tachypnea`,WARN]; return[`→ Normal`,OK]; }
+  return ['',OK];
+}
+
+function renderUI() {
+  document.getElementById('val-hr').textContent   = vitals.hr;
+  document.getElementById('val-spo2').textContent = vitals.spo2;
+  document.getElementById('val-bp').textContent   = vitals.sys;
+  document.getElementById('unit-bp').textContent  = '/'+vitals.dia;
+  document.getElementById('val-rr').textContent   = vitals.rr;
+  for (const k of ['hr','spo2','bp','rr']) {
+    const [text,color] = trend(k,vitals);
+    const el = document.getElementById('trend-'+k);
+    el.textContent = text;
+    el.style.color = color;
+  }
+}
+renderUI();
+
+// ── ECG ──────────────────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('ecg-canvas');
+  const dpr = window.devicePixelRatio || 1;
+  const CW = 552, CH = 90;
+
+  canvas.width        = Math.round(CW * dpr);
+  canvas.height       = Math.round(CH * dpr);
+  canvas.style.width  = CW + 'px';
+  canvas.style.height = CH + 'px';
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  function tri(t,t0,dur,a) {
+    if (dur<=0||t<t0||t>t0+dur) return 0;
+    const h=dur*0.5; return (-Math.abs(t-(t0+h))+h)*(a/h);
+  }
+  function para(t,t0,dur,a) {
+    if (dur<=0||t<t0||t>t0+dur) return 0;
+    const h=dur*0.5, d=t-(t0+h); return (-d*d+h*h)*(a/(h*h));
+  }
+  function ecgAt(nT) {
+    const T=60/bpm, sq=Math.sqrt(T);
+    const pd =Math.max(0.01, 0.37*sq-0.22*T-0.06);
+    const pq =Math.max(0.01, 0.33*sq-0.18*T-0.08);
+    const qrs=Math.max(0.01, 0.25*sq-0.16*T-0.02);
+    const q=qrs*0.23, r=qrs*0.42, s=qrs*0.35;
+    const st=Math.max(0.01, -0.09*sq+0.13*T+0.04);
+    const td=Math.max(0.01,  1.06*sq-0.51*T-0.33);
+    const t=((nT%1)+1)%1*T;
+    const qS=pd+pq, rS=qS+q, sS=rS+r, tS=qS+qrs+st;
+    let v=para(t,0,pd,0.24);
+    v-=tri(t,qS,q,0.025); v+=tri(t,rS,r,1.0); v-=tri(t,sS,s,0.25);
+    v+=para(t,tS,td,0.35);
+    return v;
+  }
+
+  const BEAT_PX = 280;
+  const buf = new Float32Array(CW);
+  let head=0, beatT=0, prev=null;
+
+  function draw(now) {
+    if (!prev) prev = now;
+    const dt = Math.min(now-prev, 50);
+    prev = now;
+
+    const mid=CH*0.52, amp=CH*0.44;
+    const pxCount = Math.max(1, Math.round(BEAT_PX / (60000/bpm) * dt));
+    for (let i=0; i<pxCount; i++) {
+      buf[head] = ecgAt(beatT)*amp;
+      beatT = (beatT + 1/BEAT_PX) % 1;
+      head  = (head  + 1) % CW;
+    }
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // dark background
+    ctx.fillStyle = 'rgba(0,0,8,0.7)';
+    ctx.fillRect(0, 0, CW, CH);
+
+    // minor grid
+    ctx.lineWidth=0.5; ctx.strokeStyle='rgba(96,165,250,0.10)';
+    ctx.beginPath();
+    const sb=BEAT_PX/25;
+    for (let x=0; x<=CW; x+=sb) { ctx.moveTo(x,0); ctx.lineTo(x,CH); }
+    for (let y=0; y<=CH; y+=CH/8) { ctx.moveTo(0,y); ctx.lineTo(CW,y); }
+    ctx.stroke();
+    // major grid
+    ctx.lineWidth=0.5; ctx.strokeStyle='rgba(96,165,250,0.22)';
+    ctx.beginPath();
+    const lb=BEAT_PX/5;
+    for (let x=0; x<=CW; x+=lb) { ctx.moveTo(x,0); ctx.lineTo(x,CH); }
+    ctx.stroke();
+
+    // waveform
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    const p = new Path2D();
+    for (let i=0; i<CW; i++) {
+      const x=i, y=mid - buf[(head+i)%CW];
+      i===0 ? p.moveTo(x,y) : p.lineTo(x,y);
+    }
+    ctx.lineWidth=3.5; ctx.strokeStyle='rgba(96,165,250,0.20)'; ctx.stroke(p);
+    ctx.lineWidth=2;   ctx.strokeStyle='#60A5FA';                ctx.stroke(p);
+
+    // scan-head wipe
+    const hx = head===0 ? CW-1 : head-1;
+    const g = ctx.createLinearGradient(hx-30, 0, hx+4, 0);
+    g.addColorStop(0, 'rgba(0,0,8,0)');
+    g.addColorStop(1, 'rgba(0,0,8,0.92)');
+    ctx.fillStyle = g;
+    ctx.fillRect(hx-30, 0, 34, CH);
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
