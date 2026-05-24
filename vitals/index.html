@@ -237,7 +237,8 @@ renderUI();
     return v;
   }
 
-  const BEAT_PX = 280;
+  // Fixed sweep speed (like real ECG paper speed). Beats compress spatially at higher HR.
+  const PX_PER_MS = 280 / 1000;
   const buf = new Float32Array(CW);
   let head=0, beatT=0, prev=null;
   let beatBPM=bpm, beatAmpScale=1.0;
@@ -247,18 +248,17 @@ renderUI();
     const dt = Math.min(now-prev, 50);
     prev = now;
 
-    const pxPerMs = BEAT_PX / (60000 / bpm);
-    const pxCount = Math.round(pxPerMs * dt);
-    const tStep   = 1 / BEAT_PX;
+    const pxCount = Math.round(PX_PER_MS * dt);   // fixed sweep speed
+    const tStep   = bpm / (PX_PER_MS * 60000);    // beat fraction per px — scales with HR
     for (let i=0; i<pxCount; i++) {
-      if (beatT < tStep) {
-        // per-beat HRV: jitter BPM ±2.5 and amplitude ±8%
+      if (beatT >= 1) {
+        beatT -= 1;
         beatBPM      = Math.max(40, Math.min(160, bpm + (Math.random()-0.5)*5));
         beatAmpScale = 0.92 + Math.random()*0.16;
       }
       const wander = 0.025 * Math.sin(2 * Math.PI * now / 4400);
       buf[head] = ecgAt(beatT) * amp * beatAmpScale + wander * amp;
-      beatT = (beatT + tStep) % 1;
+      beatT += tStep;
       head  = (head + 1) % CW;
     }
 
