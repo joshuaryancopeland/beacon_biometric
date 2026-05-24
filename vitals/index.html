@@ -239,6 +239,7 @@ renderUI();
 
   // Fixed sweep speed (like real ECG paper speed). Beats compress spatially at higher HR.
   const PX_PER_MS = 280 / 1000;
+  const BEAT_PX = 280; // reference grid size (1 beat at 60bpm)
   const buf = new Float32Array(CW);
   let head=0, beatT=0, prev=null;
   let beatBPM=bpm, beatAmpScale=1.0;
