@@ -575,7 +575,7 @@ html,body{width:100%;min-height:100%;overflow-x:hidden;font-family:'Inter',syste
     </div>
 
     <div class="vitals-display">
-      <div class="v-corner tl"></div><div class="v-corner tr"></div>
+<div class="v-corner tl"></div><div class="v-corner tr"></div>
       <div class="v-corner bl"></div><div class="v-corner br"></div>
       <div class="v-live">
         <div class="v-dot"></div>
@@ -986,11 +986,17 @@ updateCarousel(false);
       head  = (head + 1) % W;
     }
 
+    // Wrap-around display: buf[i] maps directly to screen x=i
+    // Blank zone ahead of write head so sweep line is visible
+    const BLANK = 10;
+    const blankEnd = (head + BLANK) % W;
     const p = new Path2D();
+    let pStarted = false;
     for (let i = 0; i < W; i++) {
-      const x = i;
-      const y = mid - buf[(head + i) % W];
-      i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
+      const inBlank = blankEnd > head ? (i >= head && i < blankEnd) : (i >= head || i < blankEnd);
+      if (inBlank) { pStarted = false; continue; }
+      const y = mid - buf[i];
+      if (!pStarted) { p.moveTo(i, y); pStarted = true; } else p.lineTo(i, y);
     }
 
     ctx.clearRect(0, 0, W, H);
@@ -1017,6 +1023,15 @@ updateCarousel(false);
     ctx.lineWidth   = 1.6;
     ctx.strokeStyle = '#2563EB';
     ctx.stroke(p);
+
+    // Sweep line at write head
+    const sx = head;
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgba(37,99,235,0.2)';
+    ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, H); ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.82)';
+    ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, H); ctx.stroke();
 
     requestAnimationFrame(frame);
   }
