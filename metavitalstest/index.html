@@ -288,6 +288,18 @@ renderUI();
     ctx.fillStyle = g;
     ctx.fillRect(hx-30, 0, 34, CH);
 
+    // sweep line
+    ctx.save();
+    ctx.shadowColor = '#60A5FA';
+    ctx.shadowBlur = 8;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(96,165,250,0.85)';
+    ctx.beginPath();
+    ctx.moveTo(hx, 0);
+    ctx.lineTo(hx, CH);
+    ctx.stroke();
+    ctx.restore();
+
     requestAnimationFrame(draw);
   }
 
