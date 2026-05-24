@@ -988,7 +988,7 @@ updateCarousel(false);
 
     // Wrap-around display: buf[i] maps directly to screen x=i
     // Blank zone ahead of write head so sweep line is visible
-    const BLANK = 10;
+    const BLANK = 3;
     const blankEnd = (head + BLANK) % W;
     const p = new Path2D();
     let pStarted = false;
@@ -1024,8 +1024,17 @@ updateCarousel(false);
     ctx.strokeStyle = '#2563EB';
     ctx.stroke(p);
 
-    // Sweep line at write head
+    // Sweep line at write head — trail length scales with BPM to show speed
     const sx = head;
+    const trailLen = Math.round(4 + (bpm - 50) * 0.55);
+    const trailStart = Math.max(0, sx - trailLen);
+    if (trailStart < sx) {
+      const trailGrad = ctx.createLinearGradient(trailStart, 0, sx, 0);
+      trailGrad.addColorStop(0, 'rgba(37,99,235,0)');
+      trailGrad.addColorStop(1, 'rgba(37,99,235,0.22)');
+      ctx.fillStyle = trailGrad;
+      ctx.fillRect(trailStart, 0, sx - trailStart, H);
+    }
     ctx.lineWidth = 5;
     ctx.strokeStyle = 'rgba(37,99,235,0.2)';
     ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, H); ctx.stroke();
