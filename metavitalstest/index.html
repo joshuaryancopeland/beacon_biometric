@@ -209,16 +209,19 @@ renderUI();
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  const mid = CH * 0.52, amp = CH * 0.44;
+
   function tri(t,t0,dur,a) {
     if (dur<=0||t<t0||t>t0+dur) return 0;
     const h=dur*0.5; return (-Math.abs(t-(t0+h))+h)*(a/h);
   }
   function para(t,t0,dur,a) {
     if (dur<=0||t<t0||t>t0+dur) return 0;
-    const h=dur*0.5, d=t-(t0+h); return (-d*d+h*h)*(a/(h*h));
+    const h=dur*0.5, alpha=t0+h; return (-Math.pow(t-alpha,2)+h*h)*(a/(h*h));
   }
+  // ecgAt uses beatBPM (per-beat jittered value) for morphology variation
   function ecgAt(nT) {
-    const T=60/bpm, sq=Math.sqrt(T);
+    const T=60/beatBPM, sq=Math.sqrt(T);
     const pd =Math.max(0.01, 0.37*sq-0.22*T-0.06);
     const pq =Math.max(0.01, 0.33*sq-0.18*T-0.08);
     const qrs=Math.max(0.01, 0.25*sq-0.16*T-0.02);
@@ -236,18 +239,26 @@ renderUI();
   const BEAT_PX = 280;
   const buf = new Float32Array(CW);
   let head=0, beatT=0, prev=null;
+  let beatBPM=bpm, beatAmpScale=1.0;
 
   function draw(now) {
     if (!prev) prev = now;
     const dt = Math.min(now-prev, 50);
     prev = now;
 
-    const mid=CH*0.52, amp=CH*0.44;
-    const pxCount = Math.max(1, Math.round(BEAT_PX / (60000/bpm) * dt));
+    const pxPerMs = BEAT_PX / (60000 / bpm);
+    const pxCount = Math.round(pxPerMs * dt);
+    const tStep   = 1 / BEAT_PX;
     for (let i=0; i<pxCount; i++) {
-      buf[head] = ecgAt(beatT)*amp;
-      beatT = (beatT + 1/BEAT_PX) % 1;
-      head  = (head  + 1) % CW;
+      if (beatT < tStep) {
+        // per-beat HRV: jitter BPM ±2.5 and amplitude ±8%
+        beatBPM      = Math.max(40, Math.min(160, bpm + (Math.random()-0.5)*5));
+        beatAmpScale = 0.92 + Math.random()*0.16;
+      }
+      const wander = 0.025 * Math.sin(2 * Math.PI * now / 4400);
+      buf[head] = ecgAt(beatT) * amp * beatAmpScale + wander * amp;
+      beatT = (beatT + tStep) % 1;
+      head  = (head + 1) % CW;
     }
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -261,44 +272,37 @@ renderUI();
     ctx.beginPath();
     const sb=BEAT_PX/25;
     for (let x=0; x<=CW; x+=sb) { ctx.moveTo(x,0); ctx.lineTo(x,CH); }
-    for (let y=0; y<=CH; y+=CH/8) { ctx.moveTo(0,y); ctx.lineTo(CW,y); }
+    for (let y=0; y<=CH; y+=CH/10) { ctx.moveTo(0,y); ctx.lineTo(CW,y); }
     ctx.stroke();
     // major grid
-    ctx.lineWidth=0.5; ctx.strokeStyle='rgba(96,165,250,0.22)';
+    ctx.lineWidth=0.75; ctx.strokeStyle='rgba(96,165,250,0.22)';
     ctx.beginPath();
     const lb=BEAT_PX/5;
     for (let x=0; x<=CW; x+=lb) { ctx.moveTo(x,0); ctx.lineTo(x,CH); }
+    for (let y=0; y<=CH; y+=CH/2) { ctx.moveTo(0,y); ctx.lineTo(CW,y); }
     ctx.stroke();
 
-    // waveform
+    // wrap-around waveform: buf[i] → x=i, skip blank zone ahead of head
+    const BLANK = 10;
+    const blankEnd = (head + BLANK) % CW;
     ctx.lineJoin='round'; ctx.lineCap='round';
     const p = new Path2D();
+    let started = false;
     for (let i=0; i<CW; i++) {
-      const x=i, y=mid - buf[(head+i)%CW];
-      i===0 ? p.moveTo(x,y) : p.lineTo(x,y);
+      const inBlank = blankEnd > head ? (i >= head && i < blankEnd) : (i >= head || i < blankEnd);
+      if (inBlank) { started = false; continue; }
+      const y = mid - buf[i];
+      if (!started) { p.moveTo(i, y); started = true; } else p.lineTo(i, y);
     }
     ctx.lineWidth=3.5; ctx.strokeStyle='rgba(96,165,250,0.20)'; ctx.stroke(p);
-    ctx.lineWidth=2;   ctx.strokeStyle='#60A5FA';                ctx.stroke(p);
+    ctx.lineWidth=1.6; ctx.strokeStyle='#60A5FA';                ctx.stroke(p);
 
-    // scan-head wipe
-    const hx = head===0 ? CW-1 : head-1;
-    const g = ctx.createLinearGradient(hx-30, 0, hx+4, 0);
-    g.addColorStop(0, 'rgba(0,0,8,0)');
-    g.addColorStop(1, 'rgba(0,0,8,0.92)');
-    ctx.fillStyle = g;
-    ctx.fillRect(hx-30, 0, 34, CH);
-
-    // sweep line
-    ctx.save();
-    ctx.shadowColor = '#60A5FA';
-    ctx.shadowBlur = 8;
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = 'rgba(96,165,250,0.85)';
-    ctx.beginPath();
-    ctx.moveTo(hx, 0);
-    ctx.lineTo(hx, CH);
-    ctx.stroke();
-    ctx.restore();
+    // sweep line at write head
+    const sx = head;
+    ctx.lineWidth=5;   ctx.strokeStyle='rgba(96,165,250,0.25)';
+    ctx.beginPath(); ctx.moveTo(sx,0); ctx.lineTo(sx,CH); ctx.stroke();
+    ctx.lineWidth=1.5; ctx.strokeStyle='rgba(255,255,255,0.85)';
+    ctx.beginPath(); ctx.moveTo(sx,0); ctx.lineTo(sx,CH); ctx.stroke();
 
     requestAnimationFrame(draw);
   }
